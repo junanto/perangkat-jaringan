@@ -3,201 +3,210 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Menjodohkan Perangkat Jaringan - Acak</title>
+<title>Game Perangkat Jaringan - Informatika X</title>
 
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg,#1e3c72,#2a5298);
-    color: white;
-    text-align: center;
-    margin: 0;
-    padding: 20px;
+body{
+font-family:Arial;
+background:linear-gradient(135deg,#1e3c72,#2a5298);
+color:white;
+text-align:center;
+margin:0;
+padding:20px;
 }
 
-.container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 40px;
-    margin-top: 20px;
+h1{margin-bottom:5px;}
+
+.container{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:40px;
+margin-top:20px;
 }
 
-.images, .functions {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+.images,.functions{
+display:flex;
+flex-direction:column;
+gap:12px;
 }
 
-img {
-    width: 130px;
-    background: white;
-    padding: 6px;
-    border-radius: 10px;
-    cursor: grab;
+img{
+width:120px;
+background:white;
+padding:6px;
+border-radius:10px;
+cursor:grab;
 }
 
-.dropzone {
-    background: rgba(255,255,255,0.2);
-    padding: 12px;
-    border-radius: 10px;
-    min-height: 50px;
-    width: 320px;
-    font-size: 14px;
+.dropzone{
+background:rgba(255,255,255,0.2);
+padding:12px;
+border-radius:10px;
+min-height:50px;
+width:320px;
+font-size:14px;
 }
 
-.correct { background: #4caf50 !important; }
-.wrong { background: #f44336 !important; }
+.correct{background:#4caf50 !important;}
+.wrong{background:#f44336 !important;}
 
-#info {
-    margin-top: 15px;
-    font-size: 18px;
+#info{margin-top:15px;font-size:18px;}
+
+input{
+padding:8px;
+border-radius:6px;
+border:none;
 }
 
-button {
-    margin-top: 15px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
+button{
+margin-top:10px;
+padding:8px 15px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-weight:bold;
 }
 </style>
 </head>
 <body>
 
-<h1>📡 Menjodohkan Perangkat Jaringan</h1>
+<h1>📡 Game Menjodohkan Perangkat Jaringan</h1>
 <p>Seret gambar ke fungsi yang sesuai</p>
 
+<div>
+Nama Siswa:
+<input type="text" id="namaSiswa" placeholder="Masukkan nama">
+</div>
+
 <div id="info">
-    ❤️ Nyawa: <span id="lives">❤️❤️❤️</span> |
-    🎯 Skor: <span id="score">0</span>
+❤️ Nyawa: <span id="lives">❤️❤️❤️</span> |
+🎯 Skor: <span id="score">0</span>
 </div>
 
 <div class="container">
-
 <div class="images" id="imageContainer"></div>
 <div class="functions" id="functionContainer"></div>
-
 </div>
 
 <button onclick="resetGame()">Main Lagi</button>
+<button onclick="kirimNilai()">Kirim Nilai</button>
 
 <script>
-let score = 0;
-let lives = 3;
+let score=0;
+let lives=3;
 
-const perangkat = [
-    {id:"router", img:"router.jpg", fungsi:"Menghubungkan dua atau lebih jaringan berbeda"},
-    {id:"switch", img:"switch.jpg", fungsi:"Menghubungkan banyak perangkat dalam LAN"},
-    {id:"modem", img:"modem.jpg", fungsi:"Mengubah sinyal digital dan analog"},
-    {id:"accesspoint", img:"accesspoint.jpg", fungsi:"Menyediakan akses WiFi"},
-    {id:"repeater", img:"repeater.jpg", fungsi:"Memperkuat jangkauan sinyal"},
-    {id:"lancard", img:"lancard.jpg", fungsi:"Menghubungkan komputer ke jaringan"},
-    {id:"kabelutp", img:"kabelutp.jpg", fungsi:"Media transmisi kabel jaringan"}
+const perangkat=[
+{id:"router",img:"router.jpg",fungsi:"Menghubungkan dua jaringan berbeda"},
+{id:"switch",img:"switch.jpg",fungsi:"Menghubungkan perangkat dalam LAN"},
+{id:"modem",img:"modem.jpg",fungsi:"Mengubah sinyal digital & analog"},
+{id:"accesspoint",img:"accesspoint.jpg",fungsi:"Menyediakan akses WiFi"},
+{id:"repeater",img:"repeater.jpg",fungsi:"Memperkuat jangkauan sinyal"},
+{id:"lancard",img:"lancard.jpg",fungsi:"Menghubungkan komputer ke jaringan"},
+{id:"kabelutp",img:"kabelutp.jpg",fungsi:"Media transmisi kabel jaringan"}
 ];
 
-const totalSoal = perangkat.length;
-
-// 🔀 Fungsi acak array
-function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
+function shuffle(array){
+for(let i=array.length-1;i>0;i--){
+const j=Math.floor(Math.random()*(i+1));
+[array[i],array[j]]=[array[j],array[i]];
+}
 }
 
-// Render awal
-function initGame() {
+function initGame(){
+score=0;
+lives=3;
+document.getElementById("score").innerText=0;
+document.getElementById("lives").innerText="❤️❤️❤️";
 
-    const imageContainer = document.getElementById("imageContainer");
-    const functionContainer = document.getElementById("functionContainer");
+const imgC=document.getElementById("imageContainer");
+const funcC=document.getElementById("functionContainer");
+imgC.innerHTML="";
+funcC.innerHTML="";
 
-    imageContainer.innerHTML = "";
-    functionContainer.innerHTML = "";
+let imgArr=[...perangkat];
+let funcArr=[...perangkat];
+shuffle(imgArr);
+shuffle(funcArr);
 
-    let shuffledImages = [...perangkat];
-    let shuffledFunctions = [...perangkat];
+imgArr.forEach(p=>{
+let img=document.createElement("img");
+img.src=p.img;
+img.id=p.id;
+img.draggable=true;
+img.addEventListener("dragstart",e=>{
+e.dataTransfer.setData("text",e.target.id);
+});
+imgC.appendChild(img);
+});
 
-    shuffle(shuffledImages);
-    shuffle(shuffledFunctions);
-
-    // Tampilkan gambar
-    shuffledImages.forEach(item => {
-        let img = document.createElement("img");
-        img.src = item.img;
-        img.id = item.id;
-        img.draggable = true;
-        img.addEventListener("dragstart", dragStart);
-        imageContainer.appendChild(img);
-    });
-
-    // Tampilkan fungsi
-    shuffledFunctions.forEach(item => {
-        let div = document.createElement("div");
-        div.className = "dropzone";
-        div.setAttribute("data-match", item.id);
-        div.innerText = item.fungsi;
-        div.addEventListener("dragover", e => e.preventDefault());
-        div.addEventListener("drop", drop);
-        functionContainer.appendChild(div);
-    });
+funcArr.forEach(p=>{
+let div=document.createElement("div");
+div.className="dropzone";
+div.setAttribute("data-match",p.id);
+div.innerText=p.fungsi;
+div.addEventListener("dragover",e=>e.preventDefault());
+div.addEventListener("drop",drop);
+funcC.appendChild(div);
+});
 }
 
-function dragStart(e) {
-    e.dataTransfer.setData("text", e.target.id);
+function drop(e){
+e.preventDefault();
+if(lives<=0)return;
+
+const draggedId=e.dataTransfer.getData("text");
+const correctMatch=e.target.getAttribute("data-match");
+
+if(draggedId===correctMatch){
+e.target.classList.add("correct");
+document.getElementById(draggedId).style.display="none";
+score+=100/perangkat.length;
+}else{
+e.target.classList.add("wrong");
+lives--;
+document.getElementById("lives").innerText="❤️".repeat(lives);
 }
 
-function drop(e) {
-    e.preventDefault();
-    if (lives <= 0) return;
+document.getElementById("score").innerText=Math.round(score);
 
-    const draggedId = e.dataTransfer.getData("text");
-    const correctMatch = e.target.getAttribute("data-match");
-
-    if (draggedId === correctMatch) {
-        e.target.classList.add("correct");
-        e.target.innerHTML += " ✔";
-        document.getElementById(draggedId).style.display = "none";
-        score += 100 / totalSoal;
-    } else {
-        e.target.classList.add("wrong");
-        lives--;
-        updateLives();
-    }
-
-    document.getElementById("score").innerText = Math.round(score);
-
-    if (lives === 0) {
-        alert("💀 Game Over! Nyawa habis.");
-        disableGame();
-    }
-
-    if (score >= 100) {
-        alert("🎉 Selamat! Semua jawaban benar!");
-        disableGame();
-    }
+if(lives===0){
+alert("💀 Game Over!");
 }
 
-function updateLives() {
-    document.getElementById("lives").innerText = "❤️".repeat(lives);
+if(score>=100){
+alert("🎉 Selamat! Semua benar!");
+}
 }
 
-function disableGame() {
-    document.querySelectorAll("img").forEach(img => 
-        img.setAttribute("draggable", false)
-    );
+function resetGame(){
+initGame();
 }
 
-function resetGame() {
-    score = 0;
-    lives = 3;
-    document.getElementById("score").innerText = 0;
-    document.getElementById("lives").innerText = "❤️❤️❤️";
-    initGame();
+function kirimNilai(){
+let nama=document.getElementById("namaSiswa").value;
+let skor=Math.round(score);
+
+if(nama===""){
+alert("Isi nama dulu!");
+return;
 }
 
-// Jalankan saat pertama kali load
+const formURL="https://docs.google.com/forms/d/e/1FAIpQLSeTaxgtV0oJbgYPhFDgnLYzOi7Ip6tSzsSawIyXQIF_UcBXyg/formResponse";
+
+const data=new FormData();
+data.append("entry.726368855",nama);
+data.append("entry.496330927",skor);
+
+fetch(formURL,{
+method:"POST",
+mode:"no-cors",
+body:data
+}).then(()=>{
+alert("✅ Nilai berhasil dikirim!");
+});
+}
+
 initGame();
 </script>
 
