@@ -153,14 +153,19 @@ funcC.appendChild(div);
 
 function drop(e){
 e.preventDefault();
-if(lives<=0)return;
+if(lives<=0) return;
+
+// ❗ Jika dropzone sudah terisi, tidak bisa diisi lagi
+if(e.target.classList.contains("locked")) return;
 
 const draggedId=e.dataTransfer.getData("text");
 const correctMatch=e.target.getAttribute("data-match");
+const draggedElement=document.getElementById(draggedId);
+
+if(!draggedElement || draggedElement.classList.contains("used")) return;
 
 if(draggedId===correctMatch){
 e.target.classList.add("correct");
-document.getElementById(draggedId).style.display="none";
 score+=100/perangkat.length;
 }else{
 e.target.classList.add("wrong");
@@ -168,15 +173,29 @@ lives--;
 document.getElementById("lives").innerText="❤️".repeat(lives);
 }
 
+// 🔒 Kunci dropzone & gambar
+e.target.classList.add("locked");
+draggedElement.classList.add("used");
+draggedElement.setAttribute("draggable",false);
+draggedElement.style.opacity="0.4";
+
 document.getElementById("score").innerText=Math.round(score);
 
 if(lives===0){
 alert("💀 Game Over!");
+disableAll();
 }
 
 if(score>=100){
 alert("🎉 Selamat! Semua benar!");
+disableAll();
 }
+}
+
+function disableAll(){
+document.querySelectorAll("img").forEach(img=>{
+img.setAttribute("draggable",false);
+});
 }
 
 function resetGame(){
@@ -212,3 +231,4 @@ initGame();
 
 </body>
 </html>
+
