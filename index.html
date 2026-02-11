@@ -48,6 +48,11 @@ gap:20px;
 position:relative;
 }
 
+.locked{
+pointer-events:none;
+opacity:0.7;
+}
+  
 .column{
 width:48%;
 display:flex;
@@ -226,40 +231,41 @@ selected=null;
 }
 
 function checkMatch(el1,el2){
+
 let id1=el1.dataset.id;
 let id2=el2.dataset.id;
 
 if(id1===id2){
 
-drawLine(el1,el2,"#4caf50");
+    drawLine(el1,el2,"#4caf50");
 
-el1.classList.add("correct");
-el2.classList.add("correct");
+    el1.classList.add("correct","locked");
+    el2.classList.add("correct","locked");
 
-score+=100/perangkat.length;
+    score+=100/perangkat.length;
 
 }else{
 
-drawLine(el1,el2,"#f44336");
+    drawLine(el1,el2,"#f44336");
 
-lives--;
-document.getElementById("lives").innerText="❤️".repeat(lives);
+    el1.classList.add("wrong","locked");
+    el2.classList.add("wrong","locked");
 
-// gambar hilang jika salah
-if(el1.querySelector("img")) el1.remove();
-if(el2.querySelector("img")) el2.remove();
+    lives--;
+    document.getElementById("lives").innerText="❤️".repeat(lives);
 
-if(lives===0){
-alert("💀 Game Over!");
-}
+    if(lives===0){
+        alert("💀 Game Over!");
+    }
 }
 
 document.getElementById("score").innerText=Math.round(score);
 
 if(score>=100){
-alert("🎉 Semua Jawaban Benar!");
+    alert("🎉 Semua Jawaban Benar!");
 }
 }
+
 
 const canvas=document.getElementById("canvas");
 const ctx=canvas.getContext("2d");
@@ -320,3 +326,4 @@ initGame();
 
 </body>
 </html>
+
