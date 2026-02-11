@@ -7,67 +7,82 @@
 
 <style>
 body{
-font-family:Arial;
-background:linear-gradient(135deg,#1e3c72,#2a5298);
-color:white;
-text-align:center;
+font-family:'Segoe UI',sans-serif;
+background:#f4f6fb;
 margin:0;
 padding:20px;
-overflow-x:hidden;
+text-align:center;
 }
 
-h1{margin-bottom:5px;}
+h1{
+color:#333;
+margin-bottom:5px;
+}
 
-.container{
-display:flex;
-flex-wrap:wrap;
-justify-content:center;
-gap:40px;
-margin-top:20px;
+.card{
+max-width:1000px;
+margin:auto;
+background:white;
+padding:20px;
+border-radius:16px;
+box-shadow:0 8px 25px rgba(0,0,0,0.1);
 position:relative;
 }
 
-.images,.functions{
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+margin-bottom:15px;
+}
+
+#info{
+font-weight:bold;
+}
+
+.container{
+display:flex;
+justify-content:space-between;
+gap:20px;
+position:relative;
+}
+
+.column{
+width:48%;
 display:flex;
 flex-direction:column;
 gap:12px;
 }
 
 .item{
-background:white;
-color:black;
-padding:8px;
-border-radius:10px;
+background:#f1f3f9;
+padding:10px;
+border-radius:12px;
 cursor:pointer;
-transition:0.3s;
+transition:0.2s;
+display:flex;
+align-items:center;
+justify-content:center;
+min-height:70px;
 }
 
 .item img{
-width:120px;
+width:90px;
 }
 
-.item.selected{
+.item:hover{
+transform:scale(1.03);
+background:#e4e8f5;
+}
+
+.selected{
 border:3px solid orange;
 }
 
-.correct{background:#4caf50 !important;color:white;}
-.wrong{background:#f44336 !important;color:white;}
-
-#info{margin-top:15px;font-size:18px;}
-
-input{
-padding:8px;
-border-radius:6px;
-border:none;
-}
-
-button{
-margin-top:10px;
-padding:8px 15px;
-border:none;
-border-radius:6px;
-cursor:pointer;
-font-weight:bold;
+.correct{
+background:#4caf50 !important;
+color:white;
 }
 
 canvas{
@@ -77,35 +92,64 @@ left:0;
 pointer-events:none;
 }
 
+button{
+margin-top:15px;
+padding:8px 15px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+background:#4caf50;
+color:white;
+}
+
+input{
+padding:6px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
 @media(max-width:768px){
-.container{flex-direction:column;}
+.container{
+flex-direction:row; /* tetap sejajar */
+}
+.column{
+width:48%;
+}
+.item img{
+width:70px;
+}
 }
 </style>
 </head>
 <body>
 
-<h1>📡 Game Menjodohkan Perangkat Jaringan</h1>
-<p>Klik gambar lalu klik fungsi yang sesuai</p>
+<h1>📡 Menjodohkan Perangkat Jaringan</h1>
 
+<div class="card">
+
+<div class="topbar">
 <div>
-Nama Siswa:
+Nama:
 <input type="text" id="namaSiswa" placeholder="Masukkan nama">
 </div>
-
 <div id="info">
-❤️ Nyawa: <span id="lives">❤️❤️❤️</span> |
-🎯 Skor: <span id="score">0</span>
+❤️ <span id="lives">❤️❤️❤️</span> |
+🎯 <span id="score">0</span>
+</div>
 </div>
 
 <canvas id="canvas"></canvas>
 
 <div class="container">
-<div class="images" id="imageContainer"></div>
-<div class="functions" id="functionContainer"></div>
+<div class="column" id="imageColumn"></div>
+<div class="column" id="functionColumn"></div>
 </div>
 
 <button onclick="resetGame()">Main Lagi</button>
 <button onclick="kirimNilai()">Kirim Nilai</button>
+
+</div>
 
 <script>
 let score=0;
@@ -135,8 +179,8 @@ lives=3;
 selected=null;
 document.getElementById("score").innerText=0;
 document.getElementById("lives").innerText="❤️❤️❤️";
-document.getElementById("imageContainer").innerHTML="";
-document.getElementById("functionContainer").innerHTML="";
+imageColumn.innerHTML="";
+functionColumn.innerHTML="";
 clearCanvas();
 
 let imgArr=[...perangkat];
@@ -148,9 +192,9 @@ imgArr.forEach(p=>{
 let div=document.createElement("div");
 div.className="item";
 div.dataset.id=p.id;
-div.innerHTML=`<img src="${p.img}"><br>${p.id.toUpperCase()}`;
+div.innerHTML=`<img src="${p.img}">`;
 div.onclick=()=>selectItem(div,"img");
-imageContainer.appendChild(div);
+imageColumn.appendChild(div);
 });
 
 funcArr.forEach(p=>{
@@ -159,7 +203,7 @@ div.className="item";
 div.dataset.id=p.id;
 div.innerText=p.fungsi;
 div.onclick=()=>selectItem(div,"func");
-functionContainer.appendChild(div);
+functionColumn.appendChild(div);
 });
 
 resizeCanvas();
@@ -187,7 +231,7 @@ let id2=el2.dataset.id;
 
 if(id1===id2){
 
-drawLine(el1,el2,"#00ff00");
+drawLine(el1,el2,"#4caf50");
 
 el1.classList.add("correct");
 el2.classList.add("correct");
@@ -196,12 +240,12 @@ score+=100/perangkat.length;
 
 }else{
 
-drawLine(el1,el2,"#ff0000");
+drawLine(el1,el2,"#f44336");
 
 lives--;
 document.getElementById("lives").innerText="❤️".repeat(lives);
 
-// gambar hilang
+// gambar hilang jika salah
 if(el1.querySelector("img")) el1.remove();
 if(el2.querySelector("img")) el2.remove();
 
@@ -221,20 +265,21 @@ const canvas=document.getElementById("canvas");
 const ctx=canvas.getContext("2d");
 
 function resizeCanvas(){
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
+canvas.width=document.querySelector(".card").offsetWidth;
+canvas.height=document.querySelector(".card").offsetHeight;
 }
 window.addEventListener("resize",resizeCanvas);
 
 function drawLine(el1,el2,color){
+const cardRect=document.querySelector(".card").getBoundingClientRect();
 const r1=el1.getBoundingClientRect();
 const r2=el2.getBoundingClientRect();
 
 ctx.strokeStyle=color;
 ctx.lineWidth=3;
 ctx.beginPath();
-ctx.moveTo(r1.left+r1.width/2,r1.top+r1.height/2);
-ctx.lineTo(r2.left+r2.width/2,r2.top+r2.height/2);
+ctx.moveTo(r1.left+r1.width/2-cardRect.left,r1.top+r1.height/2-cardRect.top);
+ctx.lineTo(r2.left+r2.width/2-cardRect.left,r2.top+r2.height/2-cardRect.top);
 ctx.stroke();
 }
 
