@@ -155,7 +155,6 @@ function drop(e){
 e.preventDefault();
 if(lives<=0) return;
 
-// ❗ Jika dropzone sudah terisi, tidak bisa diisi lagi
 if(e.target.classList.contains("locked")) return;
 
 const draggedId=e.dataTransfer.getData("text");
@@ -165,19 +164,30 @@ const draggedElement=document.getElementById(draggedId);
 if(!draggedElement || draggedElement.classList.contains("used")) return;
 
 if(draggedId===correctMatch){
-e.target.classList.add("correct");
-score+=100/perangkat.length;
-}else{
-e.target.classList.add("wrong");
-lives--;
-document.getElementById("lives").innerText="❤️".repeat(lives);
-}
 
-// 🔒 Kunci dropzone & gambar
-e.target.classList.add("locked");
-draggedElement.classList.add("used");
-draggedElement.setAttribute("draggable",false);
-draggedElement.style.opacity="0.4";
+    e.target.classList.add("correct");
+    score+=100/perangkat.length;
+
+    // kunci dropzone
+    e.target.classList.add("locked");
+
+    // gambar jadi tidak bisa dipindah lagi
+    draggedElement.classList.add("used");
+    draggedElement.setAttribute("draggable",false);
+    draggedElement.style.opacity="0.6";
+
+}else{
+
+    e.target.classList.add("wrong");
+    e.target.classList.add("locked");
+
+    lives--;
+    document.getElementById("lives").innerText="❤️".repeat(lives);
+
+    // ❌ gambar langsung hilang
+    draggedElement.remove();
+
+}
 
 document.getElementById("score").innerText=Math.round(score);
 
@@ -231,4 +241,5 @@ initGame();
 
 </body>
 </html>
+
 
