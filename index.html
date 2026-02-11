@@ -13,6 +13,7 @@ color:white;
 text-align:center;
 margin:0;
 padding:20px;
+overflow-x:hidden;
 }
 
 h1{margin-bottom:5px;}
@@ -23,6 +24,7 @@ flex-wrap:wrap;
 justify-content:center;
 gap:40px;
 margin-top:20px;
+position:relative;
 }
 
 .images,.functions{
@@ -31,25 +33,25 @@ flex-direction:column;
 gap:12px;
 }
 
-img{
-width:120px;
+.item{
 background:white;
-padding:6px;
+color:black;
+padding:8px;
 border-radius:10px;
-cursor:grab;
+cursor:pointer;
+transition:0.3s;
 }
 
-.dropzone{
-background:rgba(255,255,255,0.2);
-padding:12px;
-border-radius:10px;
-min-height:50px;
-width:320px;
-font-size:14px;
+.item img{
+width:120px;
 }
 
-.correct{background:#4caf50 !important;}
-.wrong{background:#f44336 !important;}
+.item.selected{
+border:3px solid orange;
+}
+
+.correct{background:#4caf50 !important;color:white;}
+.wrong{background:#f44336 !important;color:white;}
 
 #info{margin-top:15px;font-size:18px;}
 
@@ -67,12 +69,23 @@ border-radius:6px;
 cursor:pointer;
 font-weight:bold;
 }
+
+canvas{
+position:absolute;
+top:0;
+left:0;
+pointer-events:none;
+}
+
+@media(max-width:768px){
+.container{flex-direction:column;}
+}
 </style>
 </head>
 <body>
 
 <h1>📡 Game Menjodohkan Perangkat Jaringan</h1>
-<p>Seret gambar ke fungsi yang sesuai</p>
+<p>Klik gambar lalu klik fungsi yang sesuai</p>
 
 <div>
 Nama Siswa:
@@ -83,6 +96,8 @@ Nama Siswa:
 ❤️ Nyawa: <span id="lives">❤️❤️❤️</span> |
 🎯 Skor: <span id="score">0</span>
 </div>
+
+<canvas id="canvas"></canvas>
 
 <div class="container">
 <div class="images" id="imageContainer"></div>
@@ -95,6 +110,7 @@ Nama Siswa:
 <script>
 let score=0;
 let lives=3;
+let selected=null;
 
 const perangkat=[
 {id:"router",img:"router.jpg",fungsi:"Menghubungkan dua jaringan berbeda"},
@@ -116,13 +132,12 @@ const j=Math.floor(Math.random()*(i+1));
 function initGame(){
 score=0;
 lives=3;
+selected=null;
 document.getElementById("score").innerText=0;
 document.getElementById("lives").innerText="❤️❤️❤️";
-
-const imgC=document.getElementById("imageContainer");
-const funcC=document.getElementById("functionContainer");
-imgC.innerHTML="";
-funcC.innerHTML="";
+document.getElementById("imageContainer").innerHTML="";
+document.getElementById("functionContainer").innerHTML="";
+clearCanvas();
 
 let imgArr=[...perangkat];
 let funcArr=[...perangkat];
@@ -130,82 +145,101 @@ shuffle(imgArr);
 shuffle(funcArr);
 
 imgArr.forEach(p=>{
-let img=document.createElement("img");
-img.src=p.img;
-img.id=p.id;
-img.draggable=true;
-img.addEventListener("dragstart",e=>{
-e.dataTransfer.setData("text",e.target.id);
-});
-imgC.appendChild(img);
+let div=document.createElement("div");
+div.className="item";
+div.dataset.id=p.id;
+div.innerHTML=`<img src="${p.img}"><br>${p.id.toUpperCase()}`;
+div.onclick=()=>selectItem(div,"img");
+imageContainer.appendChild(div);
 });
 
 funcArr.forEach(p=>{
 let div=document.createElement("div");
-div.className="dropzone";
-div.setAttribute("data-match",p.id);
+div.className="item";
+div.dataset.id=p.id;
 div.innerText=p.fungsi;
-div.addEventListener("dragover",e=>e.preventDefault());
-div.addEventListener("drop",drop);
-funcC.appendChild(div);
+div.onclick=()=>selectItem(div,"func");
+functionContainer.appendChild(div);
 });
+
+resizeCanvas();
 }
 
-function drop(e){
-e.preventDefault();
+function selectItem(el,type){
 if(lives<=0) return;
+if(el.classList.contains("correct")) return;
 
-if(e.target.classList.contains("locked")) return;
+if(!selected){
+selected={el,type};
+el.classList.add("selected");
+}else{
+if(selected.type!==type){
+checkMatch(selected.el,el);
+}
+selected.el.classList.remove("selected");
+selected=null;
+}
+}
 
-const draggedId=e.dataTransfer.getData("text");
-const correctMatch=e.target.getAttribute("data-match");
-const draggedElement=document.getElementById(draggedId);
+function checkMatch(el1,el2){
+let id1=el1.dataset.id;
+let id2=el2.dataset.id;
 
-if(!draggedElement || draggedElement.classList.contains("used")) return;
+if(id1===id2){
 
-if(draggedId===correctMatch){
+drawLine(el1,el2,"#00ff00");
 
-    e.target.classList.add("correct");
-    score+=100/perangkat.length;
+el1.classList.add("correct");
+el2.classList.add("correct");
 
-    // kunci dropzone
-    e.target.classList.add("locked");
-
-    // gambar jadi tidak bisa dipindah lagi
-    draggedElement.classList.add("used");
-    draggedElement.setAttribute("draggable",false);
-    draggedElement.style.opacity="0.6";
+score+=100/perangkat.length;
 
 }else{
 
-    e.target.classList.add("wrong");
-    e.target.classList.add("locked");
+drawLine(el1,el2,"#ff0000");
 
-    lives--;
-    document.getElementById("lives").innerText="❤️".repeat(lives);
+lives--;
+document.getElementById("lives").innerText="❤️".repeat(lives);
 
-    // ❌ gambar langsung hilang
-    draggedElement.remove();
+// gambar hilang
+if(el1.querySelector("img")) el1.remove();
+if(el2.querySelector("img")) el2.remove();
 
+if(lives===0){
+alert("💀 Game Over!");
+}
 }
 
 document.getElementById("score").innerText=Math.round(score);
 
-if(lives===0){
-alert("💀 Game Over!");
-disableAll();
-}
-
 if(score>=100){
-alert("🎉 Selamat! Semua benar!");
-disableAll();
+alert("🎉 Semua Jawaban Benar!");
 }
 }
 
-function disableAll(){
-document.querySelectorAll("img").forEach(img=>{
-img.setAttribute("draggable",false);
-});
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+
+function resizeCanvas(){
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+}
+window.addEventListener("resize",resizeCanvas);
+
+function drawLine(el1,el2,color){
+const r1=el1.getBoundingClientRect();
+const r2=el2.getBoundingClientRect();
+
+ctx.strokeStyle=color;
+ctx.lineWidth=3;
+ctx.beginPath();
+ctx.moveTo(r1.left+r1.width/2,r1.top+r1.height/2);
+ctx.lineTo(r2.left+r2.width/2,r2.top+r2.height/2);
+ctx.stroke();
+}
+
+function clearCanvas(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
 }
 
 function resetGame(){
@@ -241,5 +275,3 @@ initGame();
 
 </body>
 </html>
-
-
